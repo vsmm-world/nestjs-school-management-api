@@ -1,73 +1,99 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Learn NestJS — School Management API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A learning project built to get hands-on with [NestJS](https://nestjs.com/), Prisma, and MongoDB by modeling a small school management system: students, teachers, classes, subjects, timetables, and attendance.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+- **Auth** — JWT-based authentication with OTP email verification (Postmark/Mailgun/SendGrid)
+- **User** — account management with soft-delete (`isDeleted`) and audit fields (`createdBy`/`updatedBy`/`deletedBy`) on every entity
+- **Student** — CRUD, linked to a class
+- **Teacher** — CRUD, linked to a subject and a favorite student
+- **Class** (`School_class`) — groups students, has a timetable and attendance records
+- **Subjects** — CRUD, assignable to teachers
+- **Timetable** — per-class, per-day schedule linking teachers to classes
+- **Attendance** — per-student, per-class attendance records by date
+- **Task** — misc scheduled/background task handling
+- **Swagger** — interactive API docs generated from decorators
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Tech Stack
 
-## Installation
+- [NestJS 10](https://nestjs.com/) (TypeScript)
+- [Prisma](https://www.prisma.io/) ORM on **MongoDB**
+- Passport + `@nestjs/jwt` for authentication
+- Postmark / Mailgun / SendGrid for transactional email (OTP delivery)
+- Swagger (`@nestjs/swagger`) for API documentation
+- Jest for unit/e2e testing
 
-```bash
-$ npm install
+## Project Structure
+
+```
+src/
+├── auth/         # login, JWT strategy, OTP verification
+├── user/         # user accounts
+├── student/      # student CRUD
+├── teacher/      # teacher CRUD
+├── class/        # school classes
+├── subjects/     # subjects CRUD
+├── timetable/    # class timetables
+├── attendance/   # attendance records
+├── task/         # background/scheduled tasks
+├── validator/    # custom DTO validators
+└── prisma/       # Prisma service/module
+prisma/
+└── schema.prisma # data model (MongoDB)
 ```
 
-## Running the app
+## Getting Started
+
+### Prerequisites
+- Node.js 18+
+- A MongoDB connection string (Prisma requires a replica-set enabled MongoDB instance)
+- A Postmark API key (used for OTP emails)
+
+### Setup
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+git clone https://github.com/vsmm-world/Learn-Nestjs-from-Starting.git
+cd Learn-Nestjs-from-Starting
+npm install
 ```
 
-## Test
+Create a `.env` file in the project root:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+DATABASE_URL="mongodb+srv://<user>:<password>@<cluster>/<db>?retryWrites=true&w=majority"
+POST_MARK_API_KEY="your-postmark-api-key"
 ```
 
-## Support
+Generate the Prisma client and sync the schema:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+npm run prisma-all
+```
 
-## Stay in touch
+Run the app:
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```bash
+npm run start:dev
+```
+
+The API will be available at `http://localhost:3000`, with Swagger docs at `http://localhost:3000/api`.
+
+### Tests
+
+```bash
+npm run test        # unit tests
+npm run test:e2e     # e2e tests
+npm run test:cov     # coverage report
+```
+
+## Author
+
+**Ravindra Valand**
+- GitHub: [@vsmm-world](https://github.com/vsmm-world)
+- LinkedIn: [Ravindra Valand](https://in.linkedin.com/in/ravindra-valand)
+- Instagram: [@ravindra_valand](https://www.instagram.com/ravindra_valand/)
 
 ## License
 
-Nest is [MIT licensed](LICENSE).
+UNLICENSED — personal learning project, not intended for production use.
